@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Student Registration</title>
+<style>
+  :root {
+    --ink: #1c2a3a;
+    --ink-soft: #4a5b6f;
+    --paper: #f6f3ec;
+    --card: #ffffff;
+    --rule: #d8d2c2;
+    --accent: #8a5a3b;
+    --accent-dark: #6e4429;
+    --error: #b0402f;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Georgia', 'Iowan Old Style', serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 32px 16px 64px;
+  }
+
+  .wrap {
+    max-width: 620px;
+    margin: 0 auto;
+  }
+
+  header {
+    margin-bottom: 28px;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 14px;
+  }
+
+  header .eyebrow {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  h1 {
+    font-size: 28px;
+    margin: 4px 0 0;
+    font-weight: 700;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 2px rgba(28, 42, 58, 0.06);
+  }
+
+  .field {
+    margin-bottom: 16px;
+  }
+
+  label {
+    display: block;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+
+  input[type="text"],
+  input[type="email"] {
+    width: 100%;
+    padding: 10px 12px;
+    font-family: inherit;
+    font-size: 15px;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  input:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  button {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 11px 18px;
+    border-radius: 3px;
+    border: 1px solid var(--accent-dark);
+    cursor: pointer;
+    transition: transform 0.08s ease, background 0.15s ease;
+  }
+
+  button:active { transform: translateY(1px); }
+
+  #saveBtn {
+    background: var(--accent);
+    color: #fff;
+  }
+  #saveBtn:hover { background: var(--accent-dark); }
+
+  #viewBtn {
+    background: transparent;
+    color: var(--accent-dark);
+  }
+  #viewBtn:hover { background: rgba(138, 90, 59, 0.08); }
+
+  #status {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    margin-top: 12px;
+    min-height: 18px;
+  }
+  #status.error { color: var(--error); }
+  #status.ok { color: #3d6b3d; }
+
+  .roster-title {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0 0 12px;
+  }
+
+  ul#studentList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  ul#studentList li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--rule);
+  }
+
+  ul#studentList li:last-child { border-bottom: none; }
+
+  .s-name {
+    font-weight: 700;
+  }
+
+  .s-email {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: var(--ink-soft);
+    text-align: right;
+  }
+
+  .empty {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: var(--ink-soft);
+    padding: 8px 0;
+  }
+
+  @media (max-width: 480px) {
+    ul#studentList li { flex-direction: column; gap: 2px; }
+    .s-email { text-align: left; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="eyebrow">Vercel &rarr; Render &rarr; Supabase</div>
+      <h1>Student Registration</h1>
+    </header>
+
+    <section class="card">
+      <div class="field">
+        <label for="name">Full name</label>
+        <input type="text" id="name" placeholder="Ada Lovelace" />
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="ada@example.com" />
+      </div>
+      <div class="actions">
+        <button id="saveBtn" type="button">Save Student</button>
+        <button id="viewBtn" type="button">View Students</button>
+      </div>
+      <div id="status"></div>
+    </section>
+
+    <section class="card">
+      <p class="roster-title">Roster</p>
+      <ul id="studentList"></ul>
+    </section>
+  </div>
+
+<script>
+  // ---- Configure this to your live Render backend URL ----
+  // Example: 'https://student-registration-api.onrender.com'
+  const API_BASE_URL = 'https://YOUR-RENDER-SERVICE.onrender.com';
+
+  const nameInput = document.getElementById('name');
+  const emailInput = document.getElementById('email');
+  const saveBtn = document.getElementById('saveBtn');
+  const viewBtn = document.getElementById('viewBtn');
+  const statusEl = document.getElementById('status');
+  const listEl = document.getElementById('studentList');
+
+  function setStatus(message, kind) {
+    statusEl.textContent = message;
+    statusEl.className = kind || '';
+  }
+
+  function renderStudents(students) {
+    listEl.innerHTML = '';
+    if (!students || students.length === 0) {
+      listEl.innerHTML = '<li class="empty">No students yet. Save one above.</li>';
+      return;
+    }
+    students.forEach((s) => {
+      const li = document.createElement('li');
+      const name = document.createElement('span');
+      name.className = 's-name';
+      name.textContent = s.name;
+      const email = document.createElement('span');
+      email.className = 's-email';
+      email.textContent = s.email;
+      li.appendChild(name);
+      li.appendChild(email);
+      listEl.appendChild(li);
+    });
+  }
+
+  async function saveStudent() {
+    const name = nameInput.value.trim();
+    const email = emailInput.value.trim();
+
+    if (!name || !email) {
+      setStatus('Enter a name and email first.', 'error');
+      return;
+    }
+
+    saveBtn.disabled = true;
+    setStatus('Saving…');
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/students`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server responded with ${response.status}`);
+      }
+
+      await response.json();
+      setStatus('Saved.', 'ok');
+      nameInput.value = '';
+      emailInput.value = '';
+      await loadStudents();
+    } catch (err) {
+      setStatus(`Could not save student: ${err.message}`, 'error');
+    } finally {
+      saveBtn.disabled = false;
+    }
+  }
+
+  async function loadStudents() {
+    setStatus('Loading…');
+    try {
+      const response = await fetch(`${API_BASE_URL}/students`, {
+        method: 'GET'
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server responded with ${response.status}`);
+      }
+
+      const students = await response.json();
+      renderStudents(students);
+      setStatus('');
+    } catch (err) {
+      setStatus(`Could not load students: ${err.message}`, 'error');
+    }
+  }
+
+  saveBtn.addEventListener('click', saveStudent);
+  viewBtn.addEventListener('click', loadStudents);
+</script>
+</body>
+</html>
